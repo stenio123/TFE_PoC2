@@ -2,12 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "ingress_ports" {
-  type        = list(number)
-  description = "list of ingress ports"
-  default     = [22, 443, 2299]
-}
-
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -53,7 +47,7 @@ module "vpc" {
 resource "aws_instance" "private_ec2" {
   count         = 2
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_size}"
   subnet_id = "${module.vpc.public_subnets[0]}"
   vpc_security_group_ids = ["${aws_security_group.ec2_sg.id}"]
   key_name    = "stenio-aws"
@@ -190,15 +184,4 @@ resource "aws_elb" "elb" {
     Owner  = "Stenio Ferreira"
     TTL    = "24"     
   }
-}
-
-output "lb_dns" {
-  value = "${aws_elb.elb.dns_name}"
-}
-
-output "bastion_ip" {
-  value = "${aws_instance.bastion_ec2.public_ip}"
-}
-output "private_ips" {
-  value = "${aws_instance.private_ec2.*.private_ip}"
 }
