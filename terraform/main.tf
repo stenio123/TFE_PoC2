@@ -19,7 +19,7 @@ data "aws_ami" "ubuntu" {
 }
 
 data "template_file" "init" {
-  template = "${file("init.tpl")}"
+  template = file("init.tpl")
   vars = {
     message = "World"
   }
@@ -28,56 +28,57 @@ data "template_file" "init" {
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "2.21.0"
-  name = "stenio-vpc"
-  cidr = "10.0.0.0/16"
+  name    = "stenio-vpc"
+  cidr    = "10.0.0.0/16"
 
-  azs             = ["us-east-1a", "us-east-1b"]
-  public_subnets  = ["10.0.101.0/24", "10.0.201.0/24"]
+  azs            = ["us-east-1a", "us-east-1b"]
+  public_subnets = ["10.0.101.0/24", "10.0.201.0/24"]
 
   enable_nat_gateway = true
   enable_vpn_gateway = true
 
   tags = {
-    Name   = "TFE PoC"
-    Owner  = "Stenio Ferreira"
-    TTL    = "24"    
+    Name  = "TFE PoC"
+    Owner = "Stenio Ferreira"
+    TTL   = "24"
   }
 }
 
 resource "aws_instance" "private_ec2" {
-  count         = 2
-  ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "${var.instance_size}"
-  subnet_id = "${module.vpc.public_subnets[0]}"
-  vpc_security_group_ids = ["${aws_security_group.ec2_sg.id}"]
-  key_name    = "stenio-aws"
-  user_data = "${data.template_file.init.rendered}"
+  count                  = 2
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_size
+  subnet_id              = module.vpc.public_subnets[0]
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  key_name               = var.aws_key
+  user_data              = data.template_file.init.rendered
 
   tags = {
-    Name   = "TFE PoC ec2-${count.index}"
-    Owner  = "Stenio Ferreira"
-    TTL    = "24"     
+    Name  = "TFE PoC ec2-${count.index}"
+    Owner = "Stenio Ferreira"
+    TTL   = "24"
   }
 }
 
 resource "aws_instance" "bastion_ec2" {
-  ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.micro"
-  subnet_id = "${module.vpc.public_subnets[0]}"
-  vpc_security_group_ids = ["${aws_security_group.ec2_bastion_sg.id}"]
-  key_name    = "stenio-aws"
-  user_data = "${data.template_file.init.rendered}"
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t2.micro"
+  subnet_id              = module.vpc.public_subnets[0]
+  vpc_security_group_ids = [aws_security_group.ec2_bastion_sg.id]
+  key_name               = "stenio-aws"
+  user_data              = data.template_file.init.rendered
   tags = {
-    Name   = "TFE PoC ec2Bastion"
-    Owner  = "Stenio Ferreira"
-    TTL    = "24"     
+    Name  = "TFE PoC ec2Bastion"
+    Owner = "Stenio Ferreira"
+    TTL   = "24"
   }
 }
 
 resource "aws_security_group" "ec2_sg" {
   name        = "ec2_sg_PoC"
   description = "SG for TFE Poc - Stenio Ferreira"
-  vpc_id      = "${module.vpc.vpc_id}"
+  vpc_id      = module.vpc.vpc_id
+
   dynamic "ingress" {
       iterator = port
       for_each = var.ingress_ports
@@ -90,19 +91,19 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_security_group" "ec2_bastion_sg" {
   name        = "ec2_sg_bastionPoC"
   description = "SG for bastion TFE Poc - Stenio Ferreira"
-  vpc_id      = "${module.vpc.vpc_id}"
+  vpc_id      = module.vpc.vpc_id
 
-  dynamic "ingress" {
+ dynamic "ingress" {
       iterator = port
       for_each = var.ingress_ports
       content {
@@ -121,17 +122,17 @@ resource "aws_security_group" "ec2_bastion_sg" {
   }
   */
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_security_group" "lb_sg" {
   name        = "lb_sg_PoC"
   description = "SG for TFE Poc - Stenio Ferreira"
-  vpc_id      = "${module.vpc.vpc_id}"
+  vpc_id      = module.vpc.vpc_id
 
   dynamic "ingress" {
       iterator = port
@@ -145,43 +146,45 @@ resource "aws_security_group" "lb_sg" {
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_elb" "elb" {
-  name               = "stenio-ptfe-elb"
-  security_groups    = ["${aws_security_group.lb_sg.id}"]
+  name            = "stenio-ptfe-elb"
+  security_groups = [aws_security_group.lb_sg.id]
 
   listener {
-    instance_port      = 443
-    instance_protocol  = "tcp"
-    lb_port            = 443
-    lb_protocol        = "tcp"
+    instance_port     = 443
+    instance_protocol = "tcp"
+    lb_port           = 443
+    lb_protocol       = "tcp"
     #ssl_certificate_id = "arn:aws:iam::123456789012:server-certificate/certName"
   }
   listener {
-    instance_port      = 2299
-    instance_protocol  = "tcp"
-    lb_port            = 2299
-    lb_protocol        = "tcp"
+    instance_port     = 2299
+    instance_protocol = "tcp"
+    lb_port           = 2299
+    lb_protocol       = "tcp"
   }
-    health_check {
+  health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
     target              = "HTTP:2299/index.html"
     interval            = 30
   }
+
   instances = "${aws_instance.private_ec2[*].id}"
-  subnets = "${module.vpc.public_subnets}"
+  subnets = module.vpc.public_subnets
 
   tags = {
-    Name   = "TFE PoC LB"
-    Owner  = "Stenio Ferreira"
-    TTL    = "24"     
+    Name  = "TFE PoC LB"
+    Owner = "Stenio Ferreira"
+    TTL   = "24"
   }
 }
+
