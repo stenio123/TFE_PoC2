@@ -14,3 +14,9 @@ variable "instance_size" {
   default     = "t2.micro"
 }
 
+variable "availability_zones" {
+  type        = list(string)
+  description = "list of az"
+  default     = ["us-east-1a", "us-east-1b"]
+}
+
