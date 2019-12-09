@@ -4,10 +4,10 @@ variable "ingress_ports" {
   default     = [22, 443, 2299]
 }
 
-variable "aws_key" {
+/**variable "aws_key" {
   description = "Reference to existing AWS ec2 keys. Nota that keys and instance must be in same region!"
   default     = "stenio-aws"
-}
+}*/
 
 variable "instance_size" {
   description = "list of ingress ports"
