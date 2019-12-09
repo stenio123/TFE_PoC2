@@ -14,25 +14,44 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+# Terraform identifies dependency so will only create this after DB is ready
 data "template_file" "init" {
   template = "${file("vault_bootstrap_demo.sh.tpl")}"
   vars = {
     vault_zip_url = var.vault_zip_url
     vault_license = var.vault_license
+    db_endpoint = aws_db_instance.default.endpoint
+    db_user = aws_db_instance.default.username
+    db_password = aws_db_instance.default.password
   }
+}
+
+resource "aws_db_instance" "default" {
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "mysql"
+  engine_version       = "5.7"
+  instance_class       = "db.t2.micro"
+  name                 = "Stenio_Vault_PoC"
+  username             = var.db_user
+  password             = var.db_password
+  parameter_group_name = "default.mysql5.7"
+  final_snapshot_identifier = "stenio-PoC"
+  skip_final_snapshot = true
+  vpc_security_group_ids = aws_security_group.rds_sg
 }
 
 resource "aws_instance" "ubuntu" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "${var.aws_instance_type}"
-  availability_zone = "${var.aws_az}"
+  instance_type = var.aws_instance_type
+  availability_zone = var.aws_az
 
   key_name    = var.aws_key
-  user_data = "${data.template_file.init.rendered}"
+  user_data = data.template_file.init.rendered
   vpc_security_group_ids = ["${aws_security_group.ec2_sg.id}"]
   tags = {
-    Owner = "${var.owner}"
-    TTL = "${var.ttl}"
+    Owner = var.owner
+    TTL = var.ttl
   }
 }
 
@@ -67,6 +86,30 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+resource "aws_security_group" "rds_sg" {
+  name        = "rds_sg_PoC"
+  description = "SG for RDS Vault Poc - Stenio Ferreira"
+  ingress {
+        from_port   = 3306 #M ySql/ Aurora
+        to_port     = 3306
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+        from_port   = 5432 # Postgres
+        to_port     = 5432
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
 ####
 # Google
 
@@ -92,12 +135,12 @@ resource "google_compute_network" "default" {
 
 resource "google_compute_instance" "demo" {
     name = "stenio-vault-demo"
-  machine_type = "${var.gcp_machine_type}"
-  zone         = "${var.gcp_zone}"
+  machine_type = var.gcp_machine_type
+  zone         = var.gcp_zone
 
   boot_disk {
     initialize_params {
-      image = "${var.image}"
+      image = var.image
     }
   }
 
@@ -109,10 +152,10 @@ resource "google_compute_instance" "demo" {
     }
   }
 
-  metadata_startup_script = "${data.template_file.init.rendered}"
+  metadata_startup_script = data.template_file.init.rendered
  
   labels = {
-    owner = "${var.owner}"
-    ttl = "${var.ttl}"
+    owner = var.owner
+    ttl = var.ttl
   }
 }

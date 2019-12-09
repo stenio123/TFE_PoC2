@@ -8,11 +8,18 @@ variable "aws_key" {
   description = "Reference to existing AWS ec2 keys. Nota that keys and instance must be in same region!"
   default     = "stenio-aws"
 }
+
+variable "db_user" {
+  description = "MySQL user for dynamic creds test"
+  default = "vault"
+}
+variable "db_password" {
+  description = "MySQL Password for dynamic creds test"
+}
 variable "aws_az" {
   description = "AWS az"
   default = "us-east-1b"
 }
-
 variable "aws_instance_type" {
   description = "type of EC2 instance to provision."
   default = "t2.micro"
