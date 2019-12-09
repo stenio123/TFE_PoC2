@@ -13,7 +13,7 @@ unzip vault.zip
 
 export VAULT_ADDR=http://0.0.0.0:8200
 export VAULT_TOKEN=root
-./vault write sys/license text="${vault_license}"
+./vault write sys/license text=${vault_license}
 
 ## For the demo we can do the following manually, but this shows how we could automate configuring dynamic secrets
 
