@@ -50,7 +50,7 @@ resource "aws_instance" "private_ec2" {
   instance_type          = var.instance_size
   subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  # key_name               = var.aws_key
+  key_name               = var.aws_key
   user_data              = data.template_file.init.rendered
 
   tags = {
@@ -65,7 +65,7 @@ resource "aws_instance" "bastion_ec2" {
   instance_type          = "t2.micro"
   subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [aws_security_group.ec2_bastion_sg.id]
-  # key_name               = "stenio-aws"
+  key_name               = var.aws_key
   user_data              = data.template_file.init.rendered
   tags = {
     Name  = "TFE PoC ec2Bastion"
