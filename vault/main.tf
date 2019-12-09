@@ -32,6 +32,8 @@ resource "aws_db_instance" "default" {
   engine               = "mysql"
   engine_version       = "5.7"
   instance_class       = "db.t2.micro"
+  #identifier           = "Stenio_Vault_PoC"
+  publicly_accessible  = "true"
   name                 = "Stenio_Vault_PoC"
   username             = var.db_user
   password             = var.db_password
