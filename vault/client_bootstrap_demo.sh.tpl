@@ -37,4 +37,4 @@ Password is:
 {{ .Data.data.password }}
 {{ end }}" > output.txt.tpl
 
-vault agent -config=config.hcl
+# vault agent -config=config.hcl

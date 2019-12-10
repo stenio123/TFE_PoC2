@@ -467,17 +467,20 @@ vault write auth/userpass/users/admin password=gf6iQdeLW4WMZyno policies=admin
 ##### Create Client (machine) user and write secret
 -	Enable AWS auth method in UI
 - Enter AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
--	Create client policy "client1"
+-	Create secret and a ACL policy to access secret 
 ```
-path "secret/client1/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+vault kv put secret/client1 password=test
+echo '
+path "secret/*" {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}'| vault policy write client1 -
 ```
--	Create role
+- Configure Vault agent on an AWS Server - check file client_bootstrap_demo.sh
+- ssh into the instance, execute
 ```
-vault write auth/aws/role/dev-role auth_type=ec2 bound_ami_id=ami-000b3a073fc20e415 policies=client1
+vault agent -config=config.hcl
 ```
-- Enable secret engine kv v1, named "kv1" in the UI
-- Create secret for client in the UI
--	write *kv1/client1/dbsecrets/oraclepass*
+
+Validate output.txt has secret.
+
+This is just for demo purposes, usually the workflow to configure Vault and configure client are independent so everything could be automated.
