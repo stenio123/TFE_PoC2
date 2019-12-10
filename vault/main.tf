@@ -29,6 +29,7 @@ data "template_file" "init" {
 data "template_file" "client" {
   template = "${file("client_bootstrap_demo.sh.tpl")}"
     vars = {
+    vault_zip_url = var.vault_zip_url
     vault_url = google_compute_instance.demo.network_interface.0.access_config.0.nat_ip
   }
   
