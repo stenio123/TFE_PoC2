@@ -27,6 +27,8 @@ path "secret/*" {
     capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }'| vault policy write client1 -
 
+
+
 ## For the demo we can do the following manually, but this shows how we could automate configuring dynamic secrets
 
 # Authenticate to Vault

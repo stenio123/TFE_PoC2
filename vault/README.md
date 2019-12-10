@@ -474,6 +474,8 @@ echo '
 path "secret/*" {
     capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }'| vault policy write client1 -
+
+vault write auth/aws/role/dev-role auth_type=ec2 bound_ami_id=ami-000b3a073fc20e415 policies=client1
 ```
 - Configure Vault agent on an AWS Server - check file client_bootstrap_demo.sh
 - ssh into the instance, execute

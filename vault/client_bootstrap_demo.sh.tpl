@@ -16,8 +16,11 @@ vault {
 auto_auth {
    method {
       type = \"aws\" 
-      role = \"dev-role\"
-      region = \"us-east-1\"
+      config = {
+            type =\"ec2\"
+            role = \"dev-role\"
+            region = \"us-east-1\"
+            }
    }
 
    sink \"file\" {
