@@ -3,6 +3,7 @@
 sudo apt-get install unzip
 curl ${vault_zip_url} -o vault.zip
 unzip vault.zip
+sudo cp vault /usr/local/bin/
 ./vault server \
       -dev \
       -dev-root-token-id=root \
@@ -13,6 +14,7 @@ unzip vault.zip
 
 export VAULT_ADDR=http://0.0.0.0:8200
 export VAULT_TOKEN=root
+sleep 5 # gives time for vault to start
 ./vault write sys/license text=${vault_license}
 
 ## For the demo we can do the following manually, but this shows how we could automate configuring dynamic secrets
