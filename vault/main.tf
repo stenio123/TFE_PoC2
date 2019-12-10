@@ -26,6 +26,14 @@ data "template_file" "init" {
   }
 }
 
+data "template_file" "client" {
+  template = "${file("client_bootstrap_demo.sh.tpl")}"
+    vars = {
+    vault_url = google_compute_instance.demo.network_interface.0.access_config.0.nat_ip
+  }
+  
+}
+
 resource "aws_db_instance" "default" {
   allocated_storage    = 20
   storage_type         = "gp2"
@@ -50,6 +58,20 @@ resource "aws_instance" "ubuntu" {
 
   key_name    = var.aws_key
   user_data = data.template_file.init.rendered
+  vpc_security_group_ids = ["${aws_security_group.ec2_sg.id}"]
+  tags = {
+    Owner = var.owner
+    TTL = var.ttl
+  }
+}
+
+resource "aws_instance" "client" {
+  ami           = var.aws_ami_id
+  instance_type = var.aws_instance_type
+  availability_zone = var.aws_az
+
+  key_name    = var.aws_key
+  user_data = data.template_file.client.rendered
   vpc_security_group_ids = ["${aws_security_group.ec2_sg.id}"]
   tags = {
     Owner = var.owner

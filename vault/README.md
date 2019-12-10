@@ -443,3 +443,41 @@ vault write auth/userpass/users/nico password=vault
 #---                 -----
 #refresh_interval    768h
 #foo                 bar
+```
+-----
+### AWS Authentication
+#### Create Admin User
+-	Start Vault
+-	Open in Browser http://0.0.0.0:8200
+-	Log in as root
+-	Create admin policy "admin"
+```
+path "*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+```
+-	Enable userpass auth method
+-	Create admin user associated with policy 
+```
+vault write auth/userpass/users/admin password=gf6iQdeLW4WMZyno policies=admin
+```
+
+##### Create Client (machine) user and write secret
+-	Enable AWS auth method in UI
+- Enter AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
+-	Create client policy "client1"
+```
+path "secret/client1/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+```
+-	Create role
+```
+vault write auth/aws/role/dev-role auth_type=ec2 bound_ami_id=ami-000b3a073fc20e415 policies=client1
+```
+- Enable secret engine kv v1, named "kv1" in the UI
+- Create secret for client in the UI
+-	write *kv1/client1/dbsecrets/oraclepass*

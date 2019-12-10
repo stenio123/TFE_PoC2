@@ -12,10 +12,20 @@ sudo cp vault /usr/local/bin/
       -dev-transactional \
        &
 
+
+
+
 export VAULT_ADDR=http://0.0.0.0:8200
 export VAULT_TOKEN=root
 sleep 5 # gives time for vault to start
 ./vault write sys/license text=${vault_license}
+
+# These are for the AWS auth test
+vault kv put secret/client1 password=test
+echo '
+path "secret/*" {
+    capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}'| vault policy write client1 -
 
 ## For the demo we can do the following manually, but this shows how we could automate configuring dynamic secrets
 

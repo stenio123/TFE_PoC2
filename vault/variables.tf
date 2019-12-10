@@ -35,6 +35,10 @@ variable "ttl" {
   default = "24"
 }
 
+variable "aws_ami_id" {
+  default = "ami-000b3a073fc20e415"
+}
+
 ### GCP
 
 variable "gcp_zone" {
