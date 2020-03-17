@@ -9,3 +9,7 @@ output "gcp_external_ip"{
 output "rds_url"{
   value = "${aws_db_instance.default.endpoint}"
 }
+
+output "modoule_ouput"{
+  value = "${module.outputhelloworld.output_message}"
+}
