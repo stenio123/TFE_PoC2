@@ -82,6 +82,7 @@ resource "aws_instance" "client" {
   tags = {
     Owner = var.owner
     TTL = var.ttl
+    Message = module.outputhelloworld.output_message
   }
 }
 

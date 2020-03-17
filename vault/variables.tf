@@ -27,7 +27,7 @@ variable "aws_instance_type" {
 
 variable "owner" {
   description = "name of owner"
-  default = "stenio_ferreira2"
+  default = "stenio_ferreira"
 }
 
 variable "ttl" {
