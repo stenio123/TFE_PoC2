@@ -1,6 +1,6 @@
 module "outputhelloworld" {
   source  = "app.terraform.io/TFE_PoV/outputhelloworld/module"
-  version = "0.0.1"
+  version = "0.0.3"
 }
 
 data "aws_ami" "ubuntu" {
