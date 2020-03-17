@@ -22,7 +22,7 @@ limit_proposed_monthly_cost = func(limit) {
   }
 
   # Determine proposed monthly cost
-  proposed_cost = decimal.new(tfrun.cost_estimate.proposed_monthly_delta)
+  proposed_cost = decimal.new(tfrun.cost_estimate.delta_monthly_cost)
 
   # Compare proposed monthly cost to the limit
   if proposed_cost.lte(limit) {
