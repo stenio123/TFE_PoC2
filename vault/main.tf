@@ -83,12 +83,12 @@ resource "aws_instance" "client" {
 resource "aws_security_group" "ec2_sg" {
   name        = "ec2_sg_PoC"
   description = "SG for Vault Poc - Stenio Ferreira"
-  #ingress {
-  #      from_port   = 22
-  #      to_port     = 22
-  #      protocol    = "tcp"
-  #      cidr_blocks = ["0.0.0.0/0"]
-  #}
+  ingress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+  }
     ingress {
         from_port   = 8200
         to_port     = 8200
