@@ -1,3 +1,8 @@
+module "outputhelloworld" {
+  source  = "app.terraform.io/TFE_PoV/outputhelloworld/module"
+  version = "0.0.1"
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
